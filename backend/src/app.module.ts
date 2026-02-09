@@ -14,26 +14,37 @@ import { TradeCategoryModule } from './modules/trade-category/trade-category.mod
 import { MonthLockModule } from './modules/month-lock/month-lock.module';
 import { ProductivityModule } from './modules/productivity/productivity.module';
 
-// Database configuration with logging
-const dbHost = process.env.DB_HOST || 'localhost';
-const dbPort = parseInt(process.env.DB_PORT || '3306');
-const dbUsername = process.env.DB_USERNAME || 'root';
-const dbPassword = process.env.DB_PASSWORD || 'password';
-const dbDatabase = process.env.DB_DATABASE || 'loops';
+// Database configuration with production environment variables
+let dbHost, dbPort, dbUsername, dbPassword, dbDatabase;
 
-// Log database connection details
-console.log('\n========================================');
-console.log('📊 Database Connection Configuration:');
-console.log('========================================');
-console.log(`Host: ${dbHost}`);
-console.log(`Port: ${dbPort}`);
-console.log(`Database: ${dbDatabase}`);
-console.log(`Username: ${dbUsername}`);
-console.log(`Password: ${dbPassword} (length: ${dbPassword.length})`);
-console.log(`Password from env: ${process.env.DB_PASSWORD ? `"${process.env.DB_PASSWORD}" (${process.env.DB_PASSWORD.length} chars)` : 'NOT SET - using default "root"'}`);
-console.log(`Username from env: ${process.env.DB_USERNAME ? `"${process.env.DB_USERNAME}"` : 'NOT SET - using default "root"'}`);
-console.log(`Database from env: ${process.env.DB_DATABASE ? `"${process.env.DB_DATABASE}"` : 'NOT SET - using default "hr_payroll"'}`);
-console.log('========================================\n');
+// Check if DATABASE_URL is provided (preferred for production)
+if (process.env.DATABASE_URL) {
+  const dbUrl = new URL(process.env.DATABASE_URL);
+  dbHost = dbUrl.hostname || 'localhost';
+  dbPort = parseInt(dbUrl.port) || 3306;
+  dbUsername = dbUrl.username || 'loops_user';
+  dbPassword = dbUrl.password || 'password';
+  dbDatabase = dbUrl.pathname.slice(1) || 'loops'; // Remove leading slash
+} else {
+  // Fallback to individual environment variables
+  dbHost = process.env.DATABASE_HOST || 'localhost';
+  dbPort = parseInt(process.env.DATABASE_PORT || '3306');
+  dbUsername = process.env.DATABASE_USER || 'hr_user';
+  dbPassword = process.env.DATABASE_PASSWORD || 'hr_password';
+  dbDatabase = process.env.DATABASE_NAME || 'hr_payroll';
+}
+
+// Log database connection details in development only
+if (process.env.NODE_ENV !== 'production') {
+  console.log('\n========================================');
+  console.log('📊 Database Connection Configuration:');
+  console.log('========================================');
+  console.log(`Host: ${dbHost}`);
+  console.log(`Port: ${dbPort}`);
+  console.log(`Database: ${dbDatabase}`);
+  console.log(`Username: ${dbUsername}`);
+  console.log('========================================\n');
+}
 
 @Module({
   imports: [

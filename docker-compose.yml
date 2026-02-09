@@ -3,16 +3,71 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: hr_payroll
-      MYSQL_USER: hr_user
-      MYSQL_PASSWORD: hr_password
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: Kissakai123!
+      MYSQL_DATABASE: loops
+      MYSQL_USER: loops_user
+      MYSQL_PASSWORD: Kissakai123!
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database_schema.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --innodb-buffer-pool-size=256M --max-connections=50
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: mysql://loops_user:Kissakai123!@mysql:3306/loops
+      DATABASE_PASSWORD: Kissakai123!
+      NODE_ENV: production
+      BASE_URL: https://api.shreyask.tech
+      UPLOAD_DIR: /var/www/uploads
+      FILE_URL_BASE: https://api.shreyask.tech/uploads
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: https://loops.shreyask.tech
+    depends_on:
+      - mysql
+    volumes:
+      - /var/www/uploads:/var/www/uploads
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.shreyask.tech
+      NEXT_PUBLIC_APP_URL: https://loops.shreyask.tech
+      NEXT_PUBLIC_FILE_URL: https://api.shreyask.tech/uploads
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - /var/www/uploads:/var/www/uploads
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

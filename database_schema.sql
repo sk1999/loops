@@ -7,6 +7,28 @@
 -- USE hr_payroll;
 
 -- ============================================
+-- Table: uploaded_files
+-- Purpose: Track all uploaded files with URLs and metadata
+-- ============================================
+CREATE TABLE IF NOT EXISTS `uploaded_files` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `original_name` VARCHAR(255) NOT NULL,
+  `stored_name` VARCHAR(255) NOT NULL,
+  `file_path` VARCHAR(500) NOT NULL,
+  `file_url` VARCHAR(500) NOT NULL,
+  `file_size` BIGINT NOT NULL,
+  `mime_type` VARCHAR(100) NOT NULL,
+  `category` ENUM('excel_attendance', 'excel_payroll', 'exports_payroll', 'exports_productivity', 'employee_passport', 'employee_visa', 'employee_photo', 'employee_other') NOT NULL,
+  `uploaded_by` INT NULL,
+  `upload_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `is_deleted` BOOLEAN DEFAULT FALSE,
+  INDEX `idx_category` (`category`),
+  INDEX `idx_upload_date` (`upload_date`),
+  INDEX `idx_uploaded_by` (`uploaded_by`),
+  FOREIGN KEY (`uploaded_by`) REFERENCES `employees`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- Table: trade_categories
 -- Purpose: Trade rules configuration (CLEANER, MEP, MASON, CIVIL)
 -- ============================================
