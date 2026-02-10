@@ -643,7 +643,152 @@ export default function EmployeesPage() {
           <div className="text-center py-12">Loading...</div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile Card View - Enhanced */}
+            <div className="sm:hidden space-y-4 p-4">
+              {paginatedEmployees.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  {searchTerm ? 'No employees found matching your search' : 'No employees found'}
+                </div>
+              ) : (
+                paginatedEmployees.map((emp) => (
+                  <div key={emp.employee_id} className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200">
+                    {/* Header with Photo and Basic Info */}
+                    <div className="flex items-start gap-4 mb-4">
+                      {emp.photo_url && (
+                        <img
+                          src={getDocumentUrl(emp.photo_url) || ''}
+                          alt={emp.full_name}
+                          className="w-20 h-20 rounded-xl object-cover border-2 border-white shadow-sm"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-bold text-lg text-gray-900 truncate">{emp.full_name}</h3>
+                          <span
+                            className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                              emp.status === 'active'
+                                ? 'bg-green-100 text-green-800 border border-green-200'
+                                : 'bg-red-100 text-red-800 border border-red-200'
+                            }`}
+                          >
+                            {emp.status}
+                          </span>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          <p className="text-gray-600">
+                            <span className="font-medium">ID:</span> {emp.employee_id}
+                          </p>
+                          {emp.trade_category && (
+                            <p className="text-gray-600">
+                              <span className="font-medium">Trade:</span> {emp.trade_category.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Salary Information */}
+                    <div className="grid grid-cols-3 gap-3 mb-4 p-3 bg-blue-50 rounded-lg">
+                      <div className="text-center">
+                        <p className="text-xs text-blue-600 font-medium mb-1">Basic Salary</p>
+                        <p className="text-sm font-bold text-blue-900">
+                          {emp.basic_salary ? `AED ${parseFloat(emp.basic_salary).toFixed(2)}` : '-'}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-green-600 font-medium mb-1">Food Allowance</p>
+                        <p className="text-sm font-bold text-green-900">
+                          {emp.food_allowance ? `AED ${parseFloat(emp.food_allowance).toFixed(2)}` : '-'}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs text-purple-600 font-medium mb-1">Foreman Allowance</p>
+                        <p className="text-sm font-bold text-purple-900">
+                          {emp.foreman_allowance ? `AED ${parseFloat(emp.foreman_allowance).toFixed(2)}` : '-'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Document Information */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-sm font-medium">Passport</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700">{emp.passport_number || 'Not provided'}</span>
+                          {emp.passport_expiry && (
+                            <span className="text-xs text-gray-500">
+                              Exp: {format(new Date(emp.passport_expiry), 'dd MMM yyyy')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm font-medium">Visa</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700">{emp.visa_type || 'Not provided'}</span>
+                          {emp.visa_expiry && (
+                            <span className="text-xs text-gray-500">
+                              Exp: {format(new Date(emp.visa_expiry), 'dd MMM yyyy')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Document Links */}
+                      <div className="flex gap-2 flex-wrap">
+                        {emp.passport_document_url && (
+                          <a
+                            href={getDocumentUrl(emp.passport_document_url) || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-3 py-2 text-xs bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Passport
+                          </a>
+                        )}
+                        {emp.visa_document_url && (
+                          <a
+                            href={getDocumentUrl(emp.visa_document_url) || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-3 py-2 text-xs bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Visa
+                          </a>
+                        )}
+                        {emp.other_documents && emp.other_documents.length > 0 && (
+                          <span className="inline-flex items-center gap-1 px-3 py-2 text-xs bg-gray-100 text-gray-800 rounded-lg">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2m0 0H7" />
+                            </svg>
+                            +{emp.other_documents.length} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
