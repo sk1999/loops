@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class FileUploadService {
-  private readonly uploadsBasePath = join(process.cwd(), 'uploads');
+  private readonly uploadsBasePath = process.env.UPLOAD_DIR || '/app/uploads';
   private readonly employeesPath = join(this.uploadsBasePath, 'employees');
 
   constructor() {
@@ -108,7 +108,7 @@ export class FileUploadService {
    * Delete a document file
    */
   async deleteDocument(fileUrl: string): Promise<void> {
-    const filePath = join(process.cwd(), fileUrl);
+    const filePath = join(this.uploadsBasePath, fileUrl.replace('/uploads/', ''));
     if (existsSync(filePath)) {
       const { unlinkSync } = require('fs');
       unlinkSync(filePath);
