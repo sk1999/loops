@@ -1,10 +1,11 @@
 {
-  "name": "hr-payroll-frontend",
+  "name": "loops-management",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:production": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint"
   },
