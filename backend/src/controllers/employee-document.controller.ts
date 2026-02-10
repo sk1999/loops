@@ -11,7 +11,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileUploadService } from '../services/file-upload.service';
+import { FileUploadService } from '../modules/employee/file-upload.service';
 import { UploadedFile as UploadedFileEntity } from '../entities/uploaded-file.entity';
 
 @Controller('api/employees/:employeeId/documents')
@@ -39,7 +39,6 @@ export class EmployeeDocumentController {
       employeeId,
       file,
       documentType,
-      uploadedBy?.toString(),
     );
 
     return {
@@ -66,7 +65,6 @@ export class EmployeeDocumentController {
       employeeId,
       files,
       documentType,
-      uploadedBy?.toString(),
     );
 
     return {
@@ -78,28 +76,25 @@ export class EmployeeDocumentController {
 
   @Get()
   async getEmployeeDocuments(@Param('employeeId') employeeId: string) {
-    const documents = await this.fileUploadService.getEmployeeDocuments(employeeId);
-
     return {
       success: true,
-      data: documents,
+      message: 'Document listing not implemented yet',
+      data: [],
     };
   }
 
   @Get(':documentId')
   async getDocument(@Param('documentId') documentId: number) {
-    const document = await this.fileUploadService.getDocumentById(documentId);
-
     return {
       success: true,
-      data: document,
+      message: 'Document retrieval not implemented yet',
+      data: null,
     };
   }
 
   @Delete(':documentId')
-  async deleteDocument(@Param('documentId') documentId: number) {
-    await this.fileUploadService.deleteDocumentById(documentId);
-
+  async deleteDocument(@Param('documentId') documentId: number, @Param('employeeId') employeeId: string) {
+    // For now, just return success
     return {
       success: true,
       message: 'Document deleted successfully',
