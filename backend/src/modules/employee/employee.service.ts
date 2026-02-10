@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Employee } from '../../entities/employee.entity';
+import { TradeCategory } from '../../entities/trade-category.entity';
 
 @Injectable()
 export class EmployeeService {
@@ -31,7 +32,23 @@ export class EmployeeService {
   }
 
   async create(employeeData: Partial<Employee>): Promise<Employee> {
-    const employee = this.employeeRepository.create(employeeData);
+    // Handle trade_category_id separately if provided
+    const { trade_category_id, ...restEmployeeData } = employeeData;
+    
+    // Create the employee first without the trade category
+    const employee = this.employeeRepository.create(restEmployeeData);
+    
+    // If trade_category_id is provided, find and associate the trade category
+    if (trade_category_id) {
+      const tradeCategory = await this.employeeRepository.manager
+        .getRepository(TradeCategory)
+        .findOne({ where: { id: trade_category_id } });
+      
+      if (tradeCategory) {
+        employee.trade_category = tradeCategory;
+      }
+    }
+    
     return await this.employeeRepository.save(employee);
   }
 
